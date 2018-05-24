@@ -38,20 +38,25 @@ export default class ScrollView extends React.Component {
     }
   }
   componentDidUpdate(prevProps) {
+      var t = this;
     // handle componentWillUpdate accordingly
     if ((this.props.dataSource !== prevProps.dataSource ||
         this.props.initialListSize !== prevProps.initialListSize) && this.handleScroll) {
       setTimeout(() => {
-        if (this.props.useBodyScroll) {
-          window.addEventListener('scroll', this.handleScroll);
+        if (t.props.useBodyScroll) {
+          window.addEventListener('scroll', t.handleScroll);
         } else {
-          this.ScrollViewRef.addEventListener('scroll', this.handleScroll);
+          t.mounted && t.ScrollViewRef && t.ScrollViewRef.addEventListener('scroll', t.handleScroll);
         }
       }, 0);
     }
   }
   componentDidMount() {
-    let handleScroll = e => this.props.onScroll && this.props.onScroll(e, this.getMetrics());
+      var t = this;
+      t.mounted = true;
+      var handleScroll = function handleScroll(e) {
+        return t.mounted && t.props.onScroll && t.props.onScroll(e, t.getMetrics());
+      };
     if (this.props.scrollEventThrottle) {
       handleScroll = throttle(handleScroll, this.props.scrollEventThrottle);
     }
@@ -77,6 +82,7 @@ export default class ScrollView extends React.Component {
     } else {
       this.ScrollViewRef.removeEventListener('scroll', this.handleScroll);
     }
+    this.mounted = false;
   }
 
   getMetrics = () => {
